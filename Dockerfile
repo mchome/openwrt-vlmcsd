@@ -22,6 +22,6 @@ RUN make package/openwrt-vlmcsd/compile V=99
 
 # Output
 WORKDIR /output
-RUN mv `find /build/sdk/bin/packages/ | grep openwrt-vlmcsd` .
+RUN mv `find /build/sdk/bin/packages/ | grep vlmcsd` .
 
 ENTRYPOINT ["/bin/bash", "-c", "python3 -u -m http.server -b `awk 'END{print $1}' /etc/hosts` 80"]
