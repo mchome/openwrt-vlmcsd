@@ -13,6 +13,7 @@ RUN FILE="${URL##*/}" && tar xf "${FILE}" &&  mv "${FILE%.*.*}" sdk
 ADD . /build/sdk/package/openwrt-vlmcsd/
 
 # Config
+WORKDIR /sdk
 RUN make defconfig
 RUN sed -i 's/CONFIG_PACKAGE_openwrt-vlmcsd=m/CONFIG_PACKAGE_openwrt-vlmcsd=y/g' .config
 
