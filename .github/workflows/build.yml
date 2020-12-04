@@ -2,6 +2,8 @@ on:
   push:
     branches:
       - master
+  schedule:
+    - cron:  '0 0 * * 0'
 jobs:
   create-release:
     runs-on: ubuntu-18.04
@@ -98,20 +100,10 @@ jobs:
       - name: env
         run: echo arch=$(echo ${{ matrix.sdk-url }} | sed -e 's/.*openwrt-sdk-19.07.4-\(.*\)_gcc.*/\1/') >> $GITHUB_ENV
       - name: build
-        run: 
-          - apt-get update & apt-get install -y curl xz-utils git build-essential
-          - mkdir build && cd build
-          - URL=${{ matrix.sdk-url }} curl -s -O $URL && FILE="${URL##*/}" && tar xf "${FILE}" &&  mv "${FILE%.*.*}" sdk
-          - git clone https://github.com/mchome/openwrt-vlmcsd.git
-          - cd sdk
-          - cp -r ../openwrt-vlmcsd/ package/
-          - make defconfig
-          - sed -i 's/CONFIG_PACKAGE_openwrt-vlmcsd=m/CONFIG_PACKAGE_openwrt-vlmcsd=y/g' .config
-          - make package/openwrt-vlmcsd/compile V=99
-          - cd ...
-          - mkdir ${{ env.arch }} && cd ${{ env.arch }}
-          - mv `find ../build/sdk/bin/packages/ | grep openwrt-vlmcsd` .
-      - name: build
+        run: docker build --build-arg URL=${{ matrix.sdk-url }} -t ${{ env.arch }} .
+      - name: output
+        run: docker cp $(docker run -d ${{ env.arch }}):/output ./${{ env.arch }}
+      - name: release
         run: zip -r ${{ env.arch }} ${{ env.arch }}
       - name: upload
         uses: actions/upload-release-asset@v1
