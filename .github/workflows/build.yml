@@ -2,8 +2,6 @@ on:
   push:
     branches:
       - master
-  schedule:
-    - cron:  '0 0 * * 0'
 jobs:
   create-release:
     runs-on: ubuntu-18.04
